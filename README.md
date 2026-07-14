@@ -10,8 +10,6 @@ Es un laboratorio de pruebas propio con tres programas sencillos que interactúa
 *   **attacker.cpp**: Este es el programa "atacante" o inyector. Le pides al usuario el PID del juego anterior y la dirección de memoria de la vida, y escribe directamente un nuevo valor (en este caso, 999 de vida) usando funciones de Windows.
 *   **anticheat.cpp**: Es la versión protegida del juego. Para evitar que un programa como el inyector te cambie la vida tan fácil, aquí la vida está cifrada en memoria RAM usando una máscara XOR simple. Si el atacante intenta cambiar el valor directamente, al descifrarse saldrá un número corrupto y el programa se cerrará o detectará el cambio.
 
-*Nota: Tenía también un archivo pruebas.cpp para repasar punteros y referencias en C++, pero lo he quitado del repositorio y lo he dejado solo en local para no ensuciar.*
-
 ## Cómo probar la simulación
 
 ### Paso 1: El ataque sin protección
