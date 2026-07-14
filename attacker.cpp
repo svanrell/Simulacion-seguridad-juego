@@ -25,7 +25,7 @@ int main() {
                                     &nuevaSalud, sizeof(nuevaSalud), NULL);
 
     if (!exito) {
-      std::cout << "EL ANTICHEAT NOS HA FOLLADO" << std::endl;
+      std::cout << "NO SE HA PODIDO MODIFICAR LA MEMORIA, EL ANTICHEAT ESTA ACTIVO" << std::endl;
       return 1;
     } else {
       std::cout << "SALUD MODIFICADA A " << nuevaSalud << "CON EXITO" << std::endl;
