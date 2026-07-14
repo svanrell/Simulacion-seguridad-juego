@@ -1,2 +1,6 @@
 *.exe
 .vscode/
+
+// archivos de prueba
+
+pruebas.cpp

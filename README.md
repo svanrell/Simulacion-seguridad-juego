@@ -1,82 +1,43 @@
-# 🎮 Simulador de Seguridad y Modificación de Memoria en C++
+# Simulacion de seguridad en juegos con C++
 
-¡Bienvenido al proyecto **Simulación de Seguridad en Juego**! Este repositorio es un laboratorio educativo diseñado para entender los fundamentos de la manipulación de memoria de procesos en Windows y cómo se implementan los sistemas básicos de defensa (Anticheat).
+Este repositorio lo he creado para ir guardando y ordenando lo que voy aprendiendo sobre cómo funciona la memoria de los procesos en Windows, cómo se modifica (hacer trampas) y cómo se puede proteger (anticheat básico).
 
-El proyecto se compone de tres módulos principales (juego vulnerable, inyector/atacante y juego protegido) que interactúan entre sí, además de un archivo de pruebas para repasar conceptos clave de C++.
+Es un laboratorio de pruebas propio con tres programas sencillos que interactúan entre sí.
 
----
+## Qué hay en este proyecto
 
-## 📁 Estructura del Proyecto
+*   **gameTarget.cpp**: Es la simulación de un juego de consola muy básico. Simplemente crea un jugador con vida y escudo, y te va mostrando en pantalla el PID (Process ID) y la dirección de memoria exacta en la RAM de la variable de la vida. Esto hace que sea muy fácil encontrarla para atacarla.
+*   **attacker.cpp**: Este es el programa "atacante" o inyector. Le pides al usuario el PID del juego anterior y la dirección de memoria de la vida, y escribe directamente un nuevo valor (en este caso, 999 de vida) usando funciones de Windows.
+*   **anticheat.cpp**: Es la versión protegida del juego. Para evitar que un programa como el inyector te cambie la vida tan fácil, aquí la vida está cifrada en memoria RAM usando una máscara XOR simple. Si el atacante intenta cambiar el valor directamente, al descifrarse saldrá un número corrupto y el programa se cerrará o detectará el cambio.
 
-El repositorio cuenta con los siguientes archivos fuente:
+*Nota: Tenía también un archivo pruebas.cpp para repasar punteros y referencias en C++, pero lo he quitado del repositorio y lo he dejado solo en local para no ensuciar.*
 
-*   **`gameTarget.cpp`**: Un juego simple de consola. Al iniciarse, muestra su ID de proceso (PID) y la dirección de memoria exacta en la que se almacena la vida del jugador. Es vulnerable a modificaciones externas de memoria.
-*   **`attacker.cpp`**: Una herramienta de inyección de memoria (cheat). Permite al usuario introducir un PID y una dirección de memoria en hexadecimal para sobrescribir directamente el valor de la vida del jugador con `999`.
-*   **`anticheat.cpp`**: Una versión mejorada y segura del juego. Protege la salud del jugador cifrándola al vuelo en la memoria RAM mediante un algoritmo de máscara XOR (`CLAVE_SECRETA`). Si un atacante intenta sobrescribir la vida, el juego detectará un valor inválido o descifrado incorrectamente y reaccionará de manera segura.
-*   **`pruebas.cpp`**: Una guía práctica explicativa sobre el uso de **Punteros (`*`)** y **Referencias (`&`)** en C++ con ejemplos detallados y esquemas conceptuales.
+## Cómo probar la simulación
 
----
+### Paso 1: El ataque sin protección
+1. Compila y ejecuta `gameTarget.cpp`. Apunta el PID y la dirección de memoria que te muestra en consola.
+2. Compila y ejecuta `attacker.cpp`.
+3. Introduce el PID y la dirección cuando te lo pida. Verás cómo la vida del juego cambia automáticamente al valor que ha inyectado el atacante.
 
-## ⚙️ Cómo Funciona la Simulación
+### Paso 2: La defensa con el anticheat
+1. Ejecuta `anticheat.cpp`.
+2. Verás que en la memoria RAM el valor que hay guardado no es 100, sino un número raro porque está cifrado.
+3. Si intentas usar `attacker.cpp` en esta dirección de memoria para ponerle 999, el anticheat descifrará ese 999 con la clave XOR y dará un resultado totalmente loco (probablemente negativo o muy bajo), haciendo que el jugador muera o que el programa se dé cuenta de que ha sido modificado.
 
-### Escenario 1: Ataque Exitoso (Sin Protección)
-1. Ejecutas `gameTarget.cpp`. El juego mostrará algo como esto:
-   ```text
-   JUEGO INICIADO
-   PID DEL PROCESO: 12345
-   DIRECCION DEL JUGADOR: 0x9f5c4ffd20
-   DIRECCION DE LA SALUD: 0x9f5c4ffd28
-   ```
-2. Ejecutas `attacker.cpp` en otra consola.
-3. Te pedirá el PID (`12345`) y la dirección de la salud (`9f5c4ffd28`).
-4. El atacante escribirá directamente en la memoria del juego. Al presionar ENTER en el juego, verás que la salud ha cambiado mágicamente a `999`.
+## Conceptos que estoy practicando aquí
 
-### Escenario 2: Intento de Ataque Fallido (Con Anticheat)
-1. Ejecutas `anticheat.cpp`. Mostrará la dirección de la vida, pero indicará que está cifrada:
-   ```text
-   PID: 12345
-   Direccion de la SALUD CIFRADA: 0x9f5c4ffd28
-   [DEBUG] Lo que realmente hay en la RAM: 23149 (vida real de 100 XOR clave)
-   ```
-2. Si intentas usar `attacker.cpp` en esa dirección para escribir `999`, el juego descifrará ese `999` usando la clave XOR y obtendrá un valor absurdo o negativo, haciendo que el jugador sea eliminado o que el juego tome medidas defensivas inmediatas, demostrando cómo funciona la ofuscación de memoria RAM.
+*   **Punteros y memoria**: Direcciones de memoria física y punteros (`uintptr_t`, `LPVOID`).
+*   **APIs de Windows**: Funciones del sistema como `OpenProcess` para conectarse a un proceso y `WriteProcessMemory` para escribir en su espacio de memoria.
+*   **Ofuscación básica**: Cifrado XOR para proteger datos críticos en RAM frente a escaneos sencillos.
 
----
+## Cómo compilar
 
-## 🛠️ Conceptos de Programación y APIs de Windows Demostrados
-
-El código contiene comentarios explicativos muy detallados de las siguientes tecnologías:
-*   **`GetCurrentProcessId`**: Obtiene el identificador único del proceso ejecutable.
-*   **`OpenProcess`**: Solicita permisos al sistema operativo para abrir y manipular otro proceso.
-*   **`WriteProcessMemory`**: Escribe datos directamente en el espacio de memoria RAM reservado por otro proceso.
-*   **Punteros y Referencias**: Entender cómo se pasa la información por dirección de memoria física (`uintptr_t`, `LPVOID`).
-*   **Ofuscación XOR**: Técnica criptográfica ligera para proteger variables críticas en memoria frente a escaneos simples (como Cheat Engine).
-
----
-
-## 🚀 Compilación y Ejecución
-
-Para compilar los archivos utilizando cualquier compilador de C++ (por ejemplo, GCC/g++ en Windows a través de MinGW):
+Uso g++ para compilar los ejecutables desde la terminal de Windows:
 
 ```bash
-# Compilar el juego vulnerable
 g++ gameTarget.cpp -o gameTarget.exe
-
-# Compilar el inyector/atacante
 g++ attacker.cpp -o attacker.exe
-
-# Compilar el juego protegido con anticheat
 g++ anticheat.cpp -o anticheat.exe
-
-# Compilar el archivo de pruebas conceptuales
-g++ pruebas.cpp -o pruebas.exe
 ```
 
-> ⚠️ **Nota de Seguridad**: Para que `attacker.exe` pueda abrir y modificar la memoria de otro proceso con `OpenProcess`, es posible que necesites ejecutar la consola como **Administrador** si la configuración de seguridad de tu sistema Windows es estricta.
-
----
-
-## 📚 Repaso rápido de C++ (`pruebas.cpp`)
-
-Si tienes dudas de cómo interactúa el atacante con las direcciones de memoria, puedes leer o compilar `pruebas.cpp`. Explica de forma visual la diferencia entre:
-*   **`int* p`** (Declarar puntero) vs **`*p`** (Acceder al valor al que apunta).
-*   **`int& ref`** (Declarar alias/referencia) vs **`&var`** (Obtener dirección de memoria de una variable).
+*Nota: Para que el atacante funcione correctamente, a veces hay que abrir la consola como administrador para que Windows le permita leer/escribir en la memoria de otros procesos.*
